@@ -50,13 +50,13 @@ impl<F: Field> From<SerializableMatrix<F>> for Vec<Vec<(F, usize)>> {
 
 pub fn serialize_proving_key(pk: &SerializableProvingKey) -> Vec<u8> {
     let mut serialized_data = Vec::new();
-    pk.serialize_compressed(&mut serialized_data)
+    pk.serialize_uncompressed(&mut serialized_data)
         .expect("Serialization failed");
     serialized_data
 }
 
 pub fn deserialize_proving_key(data: Vec<u8>) -> SerializableProvingKey {
-    SerializableProvingKey::deserialize_compressed_unchecked(&mut &data[..])
+    SerializableProvingKey::deserialize_uncompressed_unchecked(&mut &data[..])
         .expect("Deserialization failed")
 }
 
@@ -77,13 +77,13 @@ pub fn read_arkzkey(arkzkey_path: &str) -> Result<(ProvingKey<Bn254>, Constraint
     // Was &mut buf_reader
     let now = std::time::Instant::now();
     let serialized_proving_key =
-        SerializableProvingKey::deserialize_compressed_unchecked(&mut cursor)
+        SerializableProvingKey::deserialize_uncompressed_unchecked(&mut cursor)
             .wrap_err("Failed to deserialize proving key")?;
     println!("Time to deserialize proving key: {:?}", now.elapsed());
 
     let now = std::time::Instant::now();
     let serialized_constraint_matrices =
-        SerializableConstraintMatrices::deserialize_compressed_unchecked(&mut cursor)
+        SerializableConstraintMatrices::deserialize_uncompressed_unchecked(&mut cursor)
             .wrap_err("Failed to deserialize constraint matrices")?;
     println!("Time to deserialize matrices: {:?}", now.elapsed());
 
@@ -110,13 +110,13 @@ pub fn read_arkzkey_from_bytes(
 
     let now = std::time::Instant::now();
     let serialized_proving_key =
-        SerializableProvingKey::deserialize_compressed_unchecked(&mut cursor)
+        SerializableProvingKey::deserialize_uncompressed_unchecked(&mut cursor)
             .wrap_err("Failed to deserialize proving key")?;
     println!("Time to deserialize proving key: {:?}", now.elapsed());
 
     let now = std::time::Instant::now();
     let serialized_constraint_matrices =
-        SerializableConstraintMatrices::deserialize_compressed_unchecked(&mut cursor)
+        SerializableConstraintMatrices::deserialize_uncompressed_unchecked(&mut cursor)
             .wrap_err("Failed to deserialize constraint matrices")?;
     println!("Time to deserialize matrices: {:?}", now.elapsed());
 
@@ -186,11 +186,11 @@ pub fn convert_zkey(
         File::create(&serialized_path).wrap_err("Failed to create serialized proving key file")?;
 
     proving_key
-        .serialize_compressed(&mut file)
+        .serialize_uncompressed(&mut file)
         .wrap_err("Failed to serialize proving key")?;
 
     constraint_matrices
-        .serialize_compressed(&mut file)
+        .serialize_uncompressed(&mut file)
         .wrap_err("Failed to serialize constraint matrices")?;
 
     Ok(())
